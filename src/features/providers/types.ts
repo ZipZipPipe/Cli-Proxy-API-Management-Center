@@ -172,6 +172,6 @@ export interface ProviderEntryFormInput {
   /** OpenAI persists this; Gemini/Claude use it for one-off connectivity tests. */
   testModel?: string;
   apiKeyEntries?: ApiKeyEntryInput[];
-  /** APIKEY.FUN stores one grouped key per platform protocol. */
+  /** Multi-protocol sponsors store one grouped key per platform protocol. */
   sponsorKeyEntries?: SponsorKeyEntryInput[];
 }

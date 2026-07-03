@@ -1497,7 +1497,7 @@
       "claudeApi": "ClaudeAPI",
       "vertex": "Vertex",
       "openaiCompatibility": "OpenAI 兼容",
-      "apikeyFun": "APIKEY.FUN",
+      "apikeyFun": "Custom Provider",
       "code0": "Code0"
     },
     "table": {

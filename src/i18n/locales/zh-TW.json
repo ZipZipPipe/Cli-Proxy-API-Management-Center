@@ -132,7 +132,7 @@
   },
   "nav_meta": {
     "dashboard": "運行總覽",
-    "quick_start": "APIKEY.FUN 快速設定",
+    "quick_start": "自訂設定",
     "ai_providers": "上游模型路由",
     "auth_files": "Auth 檔案與憑證",
     "oauth": "OAuth 授權登入",
@@ -1523,7 +1523,7 @@
       "claudeApi": "ClaudeAPI",
       "vertex": "Vertex",
       "openaiCompatibility": "OpenAI 相容",
-      "apikeyFun": "APIKEY.FUN",
+      "apikeyFun": "Custom Provider",
       "code0": "Code0"
     },
     "table": {
