@@ -3,9 +3,9 @@ import type { SponsorProviderRaw } from './types';
 
 export const CODE0_PROVIDER_NAME = 'code0';
 export const CODE0_DISPLAY_NAME = 'Code0';
-export const CODE0_AFFILIATE_URL = 'https://code0.ai/agent/register/slxVMR3uVBoRgNBf';
-export const CODE0_BASE_URL = 'https://code0.ai';
-export const CODE0_OPENAI_BASE_URL = `${CODE0_BASE_URL}/v1`;
+export const CODE0_AFFILIATE_URL = '';
+export const CODE0_BASE_URL = '';
+export const CODE0_OPENAI_BASE_URL = CODE0_BASE_URL ? `${CODE0_BASE_URL}/v1` : '';
 export const CODE0_CODEX_BASE_URL = CODE0_OPENAI_BASE_URL;
 export const CODE0_ANTHROPIC_BASE_URL = CODE0_BASE_URL;
 export const CODE0_GEMINI_BASE_URL = CODE0_BASE_URL;
@@ -36,6 +36,18 @@ const normalizeText = (value: string | undefined | null): string =>
 const normalizeBaseUrl = (value: string | undefined | null): string =>
   normalizeText(value).replace(/\/+$/, '');
 
+const matchesConfiguredBaseUrl = (
+  value: string | undefined | null,
+  candidates: Array<string | undefined | null>
+): boolean => {
+  const normalized = normalizeBaseUrl(value);
+  if (!normalized) return false;
+  return candidates.some((candidate) => {
+    const normalizedCandidate = normalizeBaseUrl(candidate);
+    return normalizedCandidate ? normalized === normalizedCandidate : false;
+  });
+};
+
 export const resolveCode0BaseUrl = (value: string | undefined | null): string => {
   const normalized = normalizeBaseUrl(value);
   const matched = CODE0_BASE_URL_OPTIONS.find(
@@ -64,25 +76,21 @@ export const getCode0ProtocolUrls = (value: string | undefined | null) => {
 };
 
 const matchesCode0OpenAIBaseUrl = (value: string | undefined | null): boolean => {
-  const normalized = normalizeBaseUrl(value);
   return CODE0_BASE_URL_OPTIONS.some(
     (option) =>
-      normalized === normalizeBaseUrl(option.openaiBaseUrl) ||
-      normalized === normalizeBaseUrl(option.codexBaseUrl)
+      matchesConfiguredBaseUrl(value, [option.openaiBaseUrl, option.codexBaseUrl])
   );
 };
 
 const matchesCode0AnthropicBaseUrl = (value: string | undefined | null): boolean => {
-  const normalized = normalizeBaseUrl(value);
   return CODE0_BASE_URL_OPTIONS.some(
-    (option) => normalized === normalizeBaseUrl(option.anthropicBaseUrl)
+    (option) => matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
   );
 };
 
 const matchesCode0GeminiBaseUrl = (value: string | undefined | null): boolean => {
-  const normalized = normalizeBaseUrl(value);
   return CODE0_BASE_URL_OPTIONS.some(
-    (option) => normalized === normalizeBaseUrl(option.geminiBaseUrl)
+    (option) => matchesConfiguredBaseUrl(value, [option.geminiBaseUrl])
   );
 };
 

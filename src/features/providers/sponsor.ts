@@ -7,7 +7,9 @@ export const APIKEY_FUN_AFFILIATE_URL = '';
 export const APIKEY_FUN_DASHBOARD_URL = '';
 export const APIKEY_FUN_STANDARD_BASE_URL = '';
 export const APIKEY_FUN_DIRECT_BASE_URL = '';
-export const APIKEY_FUN_OPENAI_BASE_URL = `${APIKEY_FUN_STANDARD_BASE_URL}/v1`;
+export const APIKEY_FUN_OPENAI_BASE_URL = APIKEY_FUN_STANDARD_BASE_URL
+  ? `${APIKEY_FUN_STANDARD_BASE_URL}/v1`
+  : '';
 export const APIKEY_FUN_CODEX_BASE_URL = APIKEY_FUN_OPENAI_BASE_URL;
 export const APIKEY_FUN_ANTHROPIC_BASE_URL = APIKEY_FUN_STANDARD_BASE_URL;
 export const APIKEY_FUN_GEMINI_BASE_URL = APIKEY_FUN_STANDARD_BASE_URL;
@@ -25,8 +27,8 @@ export const APIKEY_FUN_BASE_URL_OPTIONS = [
   {
     id: 'direct',
     baseUrl: APIKEY_FUN_DIRECT_BASE_URL,
-    openaiBaseUrl: `${APIKEY_FUN_DIRECT_BASE_URL}/v1`,
-    codexBaseUrl: `${APIKEY_FUN_DIRECT_BASE_URL}/v1`,
+    openaiBaseUrl: APIKEY_FUN_DIRECT_BASE_URL ? `${APIKEY_FUN_DIRECT_BASE_URL}/v1` : '',
+    codexBaseUrl: APIKEY_FUN_DIRECT_BASE_URL ? `${APIKEY_FUN_DIRECT_BASE_URL}/v1` : '',
     anthropicBaseUrl: APIKEY_FUN_DIRECT_BASE_URL,
     geminiBaseUrl: APIKEY_FUN_DIRECT_BASE_URL,
   },
@@ -42,6 +44,18 @@ const normalizeText = (value: string | undefined | null): string =>
 
 const normalizeBaseUrl = (value: string | undefined | null): string =>
   normalizeText(value).replace(/\/+$/, '');
+
+const matchesConfiguredBaseUrl = (
+  value: string | undefined | null,
+  candidates: Array<string | undefined | null>
+): boolean => {
+  const normalized = normalizeBaseUrl(value);
+  if (!normalized) return false;
+  return candidates.some((candidate) => {
+    const normalizedCandidate = normalizeBaseUrl(candidate);
+    return normalizedCandidate ? normalized === normalizedCandidate : false;
+  });
+};
 
 export const resolveApiKeyFunBaseUrl = (value: string | undefined | null): string => {
   const normalized = normalizeBaseUrl(value);
@@ -144,18 +158,15 @@ export const normalizeApiKeyFunUsagePayload = (payload: unknown): ApiKeyFunUsage
 };
 
 const matchesApiKeyFunOpenAIBaseUrl = (value: string | undefined | null): boolean => {
-  const normalized = normalizeBaseUrl(value);
   return APIKEY_FUN_BASE_URL_OPTIONS.some(
     (option) =>
-      normalized === normalizeBaseUrl(option.openaiBaseUrl) ||
-      normalized === normalizeBaseUrl(option.codexBaseUrl)
+      matchesConfiguredBaseUrl(value, [option.openaiBaseUrl, option.codexBaseUrl])
   );
 };
 
 const matchesApiKeyFunAnthropicBaseUrl = (value: string | undefined | null): boolean => {
-  const normalized = normalizeBaseUrl(value);
   return APIKEY_FUN_BASE_URL_OPTIONS.some(
-    (option) => normalized === normalizeBaseUrl(option.anthropicBaseUrl)
+    (option) => matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
   );
 };
 

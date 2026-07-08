@@ -56,15 +56,16 @@ export function ProviderResourcePanel({
   const logo = PROVIDER_LOGOS[group.id];
   const providerTitle = t(`providersPage.providerNames.${group.id}`);
   const hasProviderInfo = group.resources.some((r) => !r.flags.isPlaceholder);
-  const showSponsorRegistrationLink = group.id === 'apikeyFun' && !hasProviderInfo;
-  const showSponsorDashboardLink = group.id === 'apikeyFun' && hasProviderInfo;
-  const showClaudeApiSponsorLink = group.id === 'claudeApi';
   const registrationUrl =
     group.id === 'claudeApi'
       ? CLAUDE_API_AFFILIATE_URL
       : group.id === 'code0'
         ? getSponsorProviderDefinition('code0').affiliateUrl
         : null;
+  const showSponsorRegistrationLink =
+    group.id === 'apikeyFun' && !hasProviderInfo && Boolean(APIKEY_FUN_AFFILIATE_URL);
+  const showSponsorDashboardLink =
+    group.id === 'apikeyFun' && hasProviderInfo && Boolean(APIKEY_FUN_DASHBOARD_URL);
   const emptyText = showSponsorRegistrationLink
     ? t('providersPage.sponsor.emptyRegisterHint')
     : t('providersPage.table.empty');
@@ -125,10 +126,10 @@ export function ProviderResourcePanel({
                 </span>
                 <IconExternalLink className={styles.sponsorLinkIcon} size={14} />
               </a>
-            ) : showClaudeApiSponsorLink || registrationUrl ? (
+            ) : registrationUrl ? (
               <a
                 className={`${styles.sponsorLink} ${styles.sponsorLinkEmphasis}`}
-                href={registrationUrl ?? CLAUDE_API_AFFILIATE_URL}
+                href={registrationUrl}
                 target="_blank"
                 rel="noreferrer"
               >
