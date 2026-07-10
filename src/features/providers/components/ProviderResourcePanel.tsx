@@ -55,12 +55,12 @@ export function ProviderResourcePanel({
   const { t } = useTranslation();
   const logo = PROVIDER_LOGOS[group.id];
   const providerTitle = t(`providersPage.providerNames.${group.id}`);
-  const hasProviderInfo = group.resources.some((r) => !r.flags.isPlaceholder);
+  const hasProviderInfo = group.resources.length > 0;
   const registrationUrl =
     group.id === 'claudeApi'
       ? CLAUDE_API_AFFILIATE_URL
-      : group.id === 'code0'
-        ? getSponsorProviderDefinition('code0').affiliateUrl
+      : group.id === 'code0' || group.id === 'fennoAI' || group.id === 'qiniuCloud'
+        ? getSponsorProviderDefinition(group.id).affiliateUrl
         : null;
   const showSponsorRegistrationLink =
     group.id === 'apikeyFun' && !hasProviderInfo && Boolean(APIKEY_FUN_AFFILIATE_URL);
@@ -78,7 +78,6 @@ export function ProviderResourcePanel({
     .join(' ');
   const darkLogoClassName = [styles.logo, styles.logoThemeDark].filter(Boolean).join(' ');
 
-  const realResources = filteredResources.filter((r) => !r.flags.isPlaceholder);
   const titleContent = (
     <>
       {logo ? (
@@ -169,7 +168,7 @@ export function ProviderResourcePanel({
         ) : null}
       </div>
 
-      {realResources.length === 0 ? (
+      {filteredResources.length === 0 ? (
         <div className={styles.empty}>
           <div>{emptyText}</div>
           <div className={styles.emptyAction}>
