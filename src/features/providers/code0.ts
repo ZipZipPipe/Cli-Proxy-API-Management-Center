@@ -4,7 +4,7 @@ import type { SponsorProviderRaw } from './types';
 export const CODE0_PROVIDER_NAME = 'code0';
 export const CODE0_DISPLAY_NAME = 'Code0';
 export const CODE0_AFFILIATE_URL = '';
-export const CODE0_BASE_URL = '';
+export const CODE0_BASE_URL = 'https://code0.ai';
 export const CODE0_OPENAI_BASE_URL = CODE0_BASE_URL ? `${CODE0_BASE_URL}/v1` : '';
 export const CODE0_CODEX_BASE_URL = CODE0_OPENAI_BASE_URL;
 export const CODE0_ANTHROPIC_BASE_URL = CODE0_BASE_URL;
@@ -98,10 +98,7 @@ export const isCode0OpenAIProvider = (
   config: OpenAIProviderConfig | undefined | null
 ): boolean => {
   if (!config) return false;
-  return (
-    normalizeText(config.name) === normalizeText(CODE0_PROVIDER_NAME) ||
-    matchesCode0OpenAIBaseUrl(config.baseUrl)
-  );
+  return matchesCode0OpenAIBaseUrl(config.baseUrl);
 };
 
 export const isCode0ClaudeProvider = (config: ProviderKeyConfig | undefined | null): boolean => {
@@ -121,7 +118,7 @@ export const isCode0GeminiProvider = (config: GeminiKeyConfig | undefined | null
 
 export const buildCode0Raw = (config: Config | null | undefined): SponsorProviderRaw => ({
   openai: (config?.openaiCompatibility ?? [])
-    .map((item, index) => ({ config: item, index }))
+    .map((item, index) => ({ config: item, index: item.sourceIndex ?? index }))
     .filter((item) => isCode0OpenAIProvider(item.config)),
   claude: (config?.claudeApiKeys ?? [])
     .map((item, index) => ({ config: item, index }))
@@ -133,4 +130,3 @@ export const buildCode0Raw = (config: Config | null | undefined): SponsorProvide
     .map((item, index) => ({ config: item, index }))
     .filter((item) => isCode0GeminiProvider(item.config)),
 });
-

@@ -4,8 +4,8 @@ import type { SponsorProviderRaw } from './types';
 export const QINIU_CLOUD_PROVIDER_NAME = 'qiniuCloud';
 export const QINIU_CLOUD_DISPLAY_NAME = '七牛云';
 export const QINIU_CLOUD_AFFILIATE_URL = '';
-export const QINIU_CLOUD_DOMESTIC_BASE_URL = '';
-export const QINIU_CLOUD_OVERSEAS_BASE_URL = '';
+export const QINIU_CLOUD_DOMESTIC_BASE_URL = 'https://api.qnaigc.com';
+export const QINIU_CLOUD_OVERSEAS_BASE_URL = 'https://api.modelink.ai';
 
 const openAIBaseUrl = (baseUrl: string): string => (baseUrl ? `${baseUrl}/v1` : '');
 
@@ -107,10 +107,7 @@ export const isQiniuCloudOpenAIProvider = (
   config: OpenAIProviderConfig | undefined | null
 ): boolean => {
   if (!config) return false;
-  return (
-    normalizeText(config.name) === normalizeText(QINIU_CLOUD_PROVIDER_NAME) ||
-    matchesQiniuCloudOpenAIBaseUrl(config.baseUrl)
-  );
+  return matchesQiniuCloudOpenAIBaseUrl(config.baseUrl);
 };
 
 export const isQiniuCloudClaudeProvider = (
@@ -136,7 +133,7 @@ export const isQiniuCloudGeminiProvider = (
 
 export const buildQiniuCloudRaw = (config: Config | null | undefined): SponsorProviderRaw => ({
   openai: (config?.openaiCompatibility ?? [])
-    .map((item, index) => ({ config: item, index }))
+    .map((item, index) => ({ config: item, index: item.sourceIndex ?? index }))
     .filter((item) => isQiniuCloudOpenAIProvider(item.config)),
   claude: (config?.claudeApiKeys ?? [])
     .map((item, index) => ({ config: item, index }))
