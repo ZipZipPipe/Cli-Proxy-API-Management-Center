@@ -5,8 +5,8 @@ export const APIKEY_FUN_PROVIDER_NAME = 'apikeyFun';
 export const APIKEY_FUN_DISPLAY_NAME = 'Custom Provider';
 export const APIKEY_FUN_AFFILIATE_URL = '';
 export const APIKEY_FUN_DASHBOARD_URL = '';
-export const APIKEY_FUN_STANDARD_BASE_URL = 'https://api.apikey.fun';
-export const APIKEY_FUN_DIRECT_BASE_URL = 'https://slb.apikey.fun';
+export const APIKEY_FUN_STANDARD_BASE_URL = '';
+export const APIKEY_FUN_DIRECT_BASE_URL = '';
 export const APIKEY_FUN_OPENAI_BASE_URL = APIKEY_FUN_STANDARD_BASE_URL
   ? `${APIKEY_FUN_STANDARD_BASE_URL}/v1`
   : '';
@@ -157,15 +157,14 @@ export const normalizeApiKeyFunUsagePayload = (payload: unknown): ApiKeyFunUsage
 };
 
 const matchesApiKeyFunOpenAIBaseUrl = (value: string | undefined | null): boolean => {
-  return APIKEY_FUN_BASE_URL_OPTIONS.some(
-    (option) =>
-      matchesConfiguredBaseUrl(value, [option.openaiBaseUrl, option.codexBaseUrl])
+  return APIKEY_FUN_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.openaiBaseUrl, option.codexBaseUrl])
   );
 };
 
 const matchesApiKeyFunAnthropicBaseUrl = (value: string | undefined | null): boolean => {
-  return APIKEY_FUN_BASE_URL_OPTIONS.some(
-    (option) => matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
+  return APIKEY_FUN_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
   );
 };
 

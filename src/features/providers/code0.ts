@@ -4,7 +4,7 @@ import type { SponsorProviderRaw } from './types';
 export const CODE0_PROVIDER_NAME = 'code0';
 export const CODE0_DISPLAY_NAME = 'Code0';
 export const CODE0_AFFILIATE_URL = '';
-export const CODE0_BASE_URL = 'https://code0.ai';
+export const CODE0_BASE_URL = '';
 export const CODE0_OPENAI_BASE_URL = CODE0_BASE_URL ? `${CODE0_BASE_URL}/v1` : '';
 export const CODE0_CODEX_BASE_URL = CODE0_OPENAI_BASE_URL;
 export const CODE0_ANTHROPIC_BASE_URL = CODE0_BASE_URL;
@@ -21,12 +21,7 @@ export const CODE0_BASE_URL_OPTIONS = [
   },
 ] as const;
 
-export const CODE0_PROTOCOL_LABELS = [
-  'openai',
-  'anthropic',
-  'gemini',
-  'codexResponses',
-] as const;
+export const CODE0_PROTOCOL_LABELS = ['openai', 'anthropic', 'gemini', 'codexResponses'] as const;
 
 const normalizeText = (value: string | undefined | null): string =>
   String(value ?? '')
@@ -76,27 +71,24 @@ export const getCode0ProtocolUrls = (value: string | undefined | null) => {
 };
 
 const matchesCode0OpenAIBaseUrl = (value: string | undefined | null): boolean => {
-  return CODE0_BASE_URL_OPTIONS.some(
-    (option) =>
-      matchesConfiguredBaseUrl(value, [option.openaiBaseUrl, option.codexBaseUrl])
+  return CODE0_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.openaiBaseUrl, option.codexBaseUrl])
   );
 };
 
 const matchesCode0AnthropicBaseUrl = (value: string | undefined | null): boolean => {
-  return CODE0_BASE_URL_OPTIONS.some(
-    (option) => matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
+  return CODE0_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
   );
 };
 
 const matchesCode0GeminiBaseUrl = (value: string | undefined | null): boolean => {
-  return CODE0_BASE_URL_OPTIONS.some(
-    (option) => matchesConfiguredBaseUrl(value, [option.geminiBaseUrl])
+  return CODE0_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.geminiBaseUrl])
   );
 };
 
-export const isCode0OpenAIProvider = (
-  config: OpenAIProviderConfig | undefined | null
-): boolean => {
+export const isCode0OpenAIProvider = (config: OpenAIProviderConfig | undefined | null): boolean => {
   if (!config) return false;
   return matchesCode0OpenAIBaseUrl(config.baseUrl);
 };

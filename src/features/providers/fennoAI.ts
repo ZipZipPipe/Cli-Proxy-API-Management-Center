@@ -4,7 +4,7 @@ import type { SponsorProviderRaw } from './types';
 export const FENNO_AI_PROVIDER_NAME = 'fennoAI';
 export const FENNO_AI_DISPLAY_NAME = 'FennoAI';
 export const FENNO_AI_AFFILIATE_URL = '';
-export const FENNO_AI_BASE_URL = 'https://api.fenno.ai';
+export const FENNO_AI_BASE_URL = '';
 export const FENNO_AI_CODEX_BASE_URL = FENNO_AI_BASE_URL ? `${FENNO_AI_BASE_URL}/v1` : '';
 export const FENNO_AI_ANTHROPIC_BASE_URL = FENNO_AI_BASE_URL;
 export const FENNO_AI_OPENAI_BASE_URL = FENNO_AI_CODEX_BASE_URL;
@@ -71,27 +71,23 @@ export const getFennoAIProtocolUrls = (value: string | undefined | null) => {
 };
 
 const matchesFennoAICodexBaseUrl = (value: string | undefined | null): boolean => {
-  return FENNO_AI_BASE_URL_OPTIONS.some(
-    (option) => matchesConfiguredBaseUrl(value, [option.codexBaseUrl])
+  return FENNO_AI_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.codexBaseUrl])
   );
 };
 
 const matchesFennoAIAnthropicBaseUrl = (value: string | undefined | null): boolean => {
-  return FENNO_AI_BASE_URL_OPTIONS.some(
-    (option) => matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
+  return FENNO_AI_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
   );
 };
 
-export const isFennoAIClaudeProvider = (
-  config: ProviderKeyConfig | undefined | null
-): boolean => {
+export const isFennoAIClaudeProvider = (config: ProviderKeyConfig | undefined | null): boolean => {
   if (!config) return false;
   return matchesFennoAIAnthropicBaseUrl(config.baseUrl);
 };
 
-export const isFennoAICodexProvider = (
-  config: ProviderKeyConfig | undefined | null
-): boolean => {
+export const isFennoAICodexProvider = (config: ProviderKeyConfig | undefined | null): boolean => {
   if (!config) return false;
   return matchesFennoAICodexBaseUrl(config.baseUrl);
 };

@@ -145,9 +145,7 @@ export function ProviderResourcePanel({
                 target="_blank"
                 rel="noreferrer"
               >
-                <span className={styles.sponsorLinkText}>
-                  {registrationLabel}
-                </span>
+                <span className={styles.sponsorLinkText}>{registrationLabel}</span>
                 <IconExternalLink className={styles.sponsorLinkIcon} size={14} />
               </a>
             ) : null}

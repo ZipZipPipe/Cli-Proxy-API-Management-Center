@@ -1,13 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import {
   buildFennoAIRaw,
+  FENNO_AI_BASE_URL_OPTIONS,
   FENNO_AI_CODEX_BASE_URL,
   FENNO_AI_PROVIDER_NAME,
 } from '../src/features/providers/fennoAI';
 import { getSponsorProviderDefinition } from '../src/features/providers/sponsorDefinitions';
 
 describe('FennoAI provider aggregation', () => {
-  test('does not claim OpenAI configs that its form cannot display', () => {
+  test('does not ship or match third-party relay URLs', () => {
     const raw = buildFennoAIRaw({
       openaiCompatibility: [
         {
@@ -20,7 +21,12 @@ describe('FennoAI provider aggregation', () => {
     });
 
     expect(getSponsorProviderDefinition('fennoAI').protocols).toEqual(['codex', 'claude']);
+    expect(
+      FENNO_AI_BASE_URL_OPTIONS.every((option) =>
+        Object.values(option).every((value) => value === 'standard' || value === '')
+      )
+    ).toBe(true);
     expect(raw.openai).toEqual([]);
-    expect(raw.codex.map((item) => item.index)).toEqual([0]);
+    expect(raw.codex).toEqual([]);
   });
 });

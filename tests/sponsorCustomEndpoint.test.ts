@@ -57,17 +57,17 @@ describe('sponsor custom endpoint isolation', () => {
     expect(buildQiniuCloudRaw(customOpenAIConfig(QINIU_CLOUD_PROVIDER_NAME)).openai).toEqual([]);
   });
 
-  test('keeps same-name custom entries outside sponsor delete targets', () => {
+  test('does not treat blank third-party URLs as sponsor endpoints', () => {
     expect(
       buildApiKeyFunRaw(
         mixedOpenAIConfig(APIKEY_FUN_PROVIDER_NAME, APIKEY_FUN_OPENAI_BASE_URL)
       ).openai.map((item) => item.index)
-    ).toEqual([0]);
+    ).toEqual([]);
     expect(
       buildCode0Raw(mixedOpenAIConfig(CODE0_PROVIDER_NAME, CODE0_OPENAI_BASE_URL)).openai.map(
         (item) => item.index
       )
-    ).toEqual([0]);
+    ).toEqual([]);
     expect(
       buildQiniuCloudRaw(
         mixedOpenAIConfig(QINIU_CLOUD_PROVIDER_NAME, QINIU_CLOUD_BASE_URL_OPTIONS[0].openaiBaseUrl)
@@ -97,16 +97,16 @@ describe('sponsor custom endpoint isolation', () => {
       ],
     });
 
-    expect(config.openaiCompatibility?.map((item) => item.sourceIndex)).toEqual([1, 2, 3]);
-    expect(buildApiKeyFunRaw(config).openai.map((item) => item.index)).toEqual([1, 3]);
-    expect(openaiToResource(config.openaiCompatibility![1], 1).originalIndex).toBe(2);
+    expect(config.openaiCompatibility?.map((item) => item.sourceIndex)).toEqual([2]);
+    expect(buildApiKeyFunRaw(config).openai).toEqual([]);
+    expect(openaiToResource(config.openaiCompatibility![0], 0).originalIndex).toBe(2);
   });
 
-  test('still aggregates each sponsor official OpenAI endpoint', () => {
+  test('only aggregates retained official OpenAI endpoints', () => {
     expect(
       buildApiKeyFunRaw(openAIConfig('custom-name', APIKEY_FUN_OPENAI_BASE_URL)).openai.length
-    ).toBe(1);
-    expect(buildCode0Raw(openAIConfig('custom-name', CODE0_OPENAI_BASE_URL)).openai.length).toBe(1);
+    ).toBe(0);
+    expect(buildCode0Raw(openAIConfig('custom-name', CODE0_OPENAI_BASE_URL)).openai.length).toBe(0);
     expect(
       buildQiniuCloudRaw(openAIConfig('custom-name', QINIU_CLOUD_BASE_URL_OPTIONS[0].openaiBaseUrl))
         .openai.length

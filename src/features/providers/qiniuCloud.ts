@@ -85,21 +85,20 @@ export const getQiniuCloudProtocolUrls = (value: string | undefined | null) => {
 };
 
 const matchesQiniuCloudOpenAIBaseUrl = (value: string | undefined | null): boolean => {
-  return QINIU_CLOUD_BASE_URL_OPTIONS.some(
-    (option) =>
-      matchesConfiguredBaseUrl(value, [option.openaiBaseUrl, option.codexBaseUrl])
+  return QINIU_CLOUD_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.openaiBaseUrl, option.codexBaseUrl])
   );
 };
 
 const matchesQiniuCloudAnthropicBaseUrl = (value: string | undefined | null): boolean => {
-  return QINIU_CLOUD_BASE_URL_OPTIONS.some(
-    (option) => matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
+  return QINIU_CLOUD_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.anthropicBaseUrl])
   );
 };
 
 const matchesQiniuCloudGeminiBaseUrl = (value: string | undefined | null): boolean => {
-  return QINIU_CLOUD_BASE_URL_OPTIONS.some(
-    (option) => matchesConfiguredBaseUrl(value, [option.geminiBaseUrl])
+  return QINIU_CLOUD_BASE_URL_OPTIONS.some((option) =>
+    matchesConfiguredBaseUrl(value, [option.geminiBaseUrl])
   );
 };
 
@@ -124,9 +123,7 @@ export const isQiniuCloudCodexProvider = (
   return matchesQiniuCloudOpenAIBaseUrl(config.baseUrl);
 };
 
-export const isQiniuCloudGeminiProvider = (
-  config: GeminiKeyConfig | undefined | null
-): boolean => {
+export const isQiniuCloudGeminiProvider = (config: GeminiKeyConfig | undefined | null): boolean => {
   if (!config) return false;
   return matchesQiniuCloudGeminiBaseUrl(config.baseUrl);
 };
