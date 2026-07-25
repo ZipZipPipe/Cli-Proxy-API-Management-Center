@@ -72,7 +72,7 @@ describe('sponsor custom endpoint isolation', () => {
       buildQiniuCloudRaw(
         mixedOpenAIConfig(QINIU_CLOUD_PROVIDER_NAME, QINIU_CLOUD_BASE_URL_OPTIONS[0].openaiBaseUrl)
       ).openai.map((item) => item.index)
-    ).toEqual([0]);
+    ).toEqual([]);
   });
 
   test('keeps backend indexes when normalization filters an unnamed item', () => {
@@ -102,7 +102,7 @@ describe('sponsor custom endpoint isolation', () => {
     expect(openaiToResource(config.openaiCompatibility![0], 0).originalIndex).toBe(2);
   });
 
-  test('only aggregates retained official OpenAI endpoints', () => {
+  test('does not aggregate removed third-party endpoints', () => {
     expect(
       buildApiKeyFunRaw(openAIConfig('custom-name', APIKEY_FUN_OPENAI_BASE_URL)).openai.length
     ).toBe(0);
@@ -110,6 +110,17 @@ describe('sponsor custom endpoint isolation', () => {
     expect(
       buildQiniuCloudRaw(openAIConfig('custom-name', QINIU_CLOUD_BASE_URL_OPTIONS[0].openaiBaseUrl))
         .openai.length
-    ).toBe(1);
+    ).toBe(0);
+    expect(
+      QINIU_CLOUD_BASE_URL_OPTIONS.every((option) =>
+        [
+          option.baseUrl,
+          option.openaiBaseUrl,
+          option.codexBaseUrl,
+          option.anthropicBaseUrl,
+          option.geminiBaseUrl,
+        ].every((value) => value === '')
+      )
+    ).toBe(true);
   });
 });
