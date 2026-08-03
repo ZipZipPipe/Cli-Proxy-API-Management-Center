@@ -62,7 +62,10 @@ export function ProviderResourcePanel({
       ? CLAUDE_API_AFFILIATE_URL
       : group.id === 'kimi'
         ? getKimiAffiliateUrl(i18n.resolvedLanguage ?? i18n.language)
-        : group.id === 'code0' || group.id === 'fennoAI' || group.id === 'qiniuCloud'
+        : group.id === 'code0' ||
+            group.id === 'lmuAI' ||
+            group.id === 'fennoAI' ||
+            group.id === 'qiniuCloud'
           ? getSponsorProviderDefinition(group.id).affiliateUrl
           : null;
   const showSponsorRegistrationLink =

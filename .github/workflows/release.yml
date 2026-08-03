@@ -37,6 +37,9 @@ jobs:
         env:
           VERSION: ${{ github.ref_name }}
 
+      - name: Check relay exposure policy
+        run: bun run check:relay-exposure dist/index.html
+
       - name: Prepare release assets
         run: |
           cd dist
