@@ -26,6 +26,8 @@ const BLOCKED_URL_FINGERPRINTS = new Set([
   'b4c631a414e37bdd4ea27fb8ac7aa42dbcc3853a275038e14b45baddadc58e47',
   '10bf3bdc6f118a892fad7b75b634bdb5d9ac9fa4807fa8e2cb4d1df94e45bcb2',
   '2e6eb5e1037643d65337dd53fad5629699090503c31695ea8a1add41ac1cd296',
+  '7da2bf4f0f0e449efb3482488f08dd66cc59a68007065dc7d763d757dd532c97',
+  '98a1d07d4e2e244730a199dc455b9b9cdbfbaaf4a0f8a559de7a12e1fecd77ac',
 ]);
 
 const artifactPath = process.argv[2] ?? 'dist/index.html';

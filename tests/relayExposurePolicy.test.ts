@@ -8,6 +8,7 @@ import {
   KIMI_CHINESE_AFFILIATE_URL,
   KIMI_INTERNATIONAL_AFFILIATE_URL,
 } from '../src/features/providers/kimi';
+import { SPONSORS } from '../src/features/config/sponsors';
 import { SPONSOR_DEFINITIONS } from '../src/features/providers/sponsorDefinitions';
 
 const FIRST_PARTY_MODEL_VENDOR_BRANDS = new Set(['kimi']);
@@ -24,6 +25,10 @@ const definitionUrls = (
   ]);
 
 describe('third-party relay exposure policy', () => {
+  test('keeps configuration sponsor links removed', () => {
+    expect(SPONSORS).toEqual([]);
+  });
+
   test('requires review before any non-first-party sponsor can ship URLs', () => {
     for (const definition of Object.values(SPONSOR_DEFINITIONS)) {
       expect(definition.affiliateUrl ?? '').toBe('');
