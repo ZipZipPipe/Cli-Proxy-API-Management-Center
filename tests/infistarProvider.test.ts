@@ -92,9 +92,8 @@ describe('Infistar sponsor provider', () => {
     expect(raw.openai).toEqual([]);
   });
 
-  test('is appended to the provider catalog with the supplied logo', () => {
-    expect(PROVIDER_BRAND_ORDER.at(-1)).toBe('infistar');
-    expect(PROVIDER_LOGOS.infistar.src).toContain('infistar.png');
-    expect(PROVIDER_LOGOS.infistar.transparent).toBeTrue();
+  test('is absent from the visible provider catalog and logo registry', () => {
+    expect(PROVIDER_BRAND_ORDER).not.toContain('infistar');
+    expect(PROVIDER_LOGOS.infistar).toBeUndefined();
   });
 });

@@ -1,4 +1,8 @@
 import { createHash } from 'node:crypto';
+import {
+  PROVIDER_BRAND_ORDER,
+  THIRD_PARTY_CHANNEL_BRANDS,
+} from '../src/features/providers/descriptors';
 
 const BLOCKED_URL_FINGERPRINTS = new Set([
   'f6da5d3dcac6ed5d4940789f24529c5138edc731ec1e60f86cca67f26524bbb8',
@@ -32,6 +36,15 @@ const BLOCKED_URL_FINGERPRINTS = new Set([
 
 const artifactPath = process.argv[2] ?? 'dist/index.html';
 const artifact = Bun.file(artifactPath);
+
+const visibleThirdPartyBrands = PROVIDER_BRAND_ORDER.filter((brand) =>
+  THIRD_PARTY_CHANNEL_BRANDS.has(brand)
+);
+if (visibleThirdPartyBrands.length > 0) {
+  throw new Error(
+    `Visible provider catalog contains ${visibleThirdPartyBrands.length} third-party channel(s)`
+  );
+}
 
 if (!(await artifact.exists())) {
   throw new Error(`Release artifact not found: ${artifactPath}`);

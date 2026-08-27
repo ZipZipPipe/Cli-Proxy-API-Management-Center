@@ -9,6 +9,11 @@ import {
   KIMI_INTERNATIONAL_AFFILIATE_URL,
 } from '../src/features/providers/kimi';
 import { SPONSORS } from '../src/features/config/sponsors';
+import { PROVIDER_LOGOS } from '../src/features/providers/brandLogos';
+import {
+  PROVIDER_BRAND_ORDER,
+  THIRD_PARTY_CHANNEL_BRANDS,
+} from '../src/features/providers/descriptors';
 import { SPONSOR_DEFINITIONS } from '../src/features/providers/sponsorDefinitions';
 
 const FIRST_PARTY_MODEL_VENDOR_BRANDS = new Set(['kimi']);
@@ -25,6 +30,21 @@ const definitionUrls = (
   ]);
 
 describe('third-party relay exposure policy', () => {
+  test('removes every third-party channel from the visible provider catalog', () => {
+    const expectedThirdPartyBrands = [
+      'claudeApi',
+      ...Object.values(SPONSOR_DEFINITIONS)
+        .filter((definition) => !FIRST_PARTY_MODEL_VENDOR_BRANDS.has(definition.brand))
+        .map((definition) => definition.brand),
+    ].sort();
+
+    expect(Array.from(THIRD_PARTY_CHANNEL_BRANDS).sort()).toEqual(expectedThirdPartyBrands);
+    for (const brand of THIRD_PARTY_CHANNEL_BRANDS) {
+      expect(PROVIDER_BRAND_ORDER).not.toContain(brand);
+      expect(PROVIDER_LOGOS[brand]).toBeUndefined();
+    }
+  });
+
   test('keeps configuration sponsor links removed', () => {
     expect(SPONSORS).toEqual([]);
   });

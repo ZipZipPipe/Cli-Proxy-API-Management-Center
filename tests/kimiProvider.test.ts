@@ -92,7 +92,7 @@ describe('Kimi provider', () => {
   });
 
   test('uses the OAuth-style theme surface for its provider icon', () => {
-    expect(PROVIDER_LOGOS.kimi.themeSurface).toBeTrue();
+    expect(PROVIDER_LOGOS.kimi?.themeSurface).toBeTrue();
   });
 
   test('is the first provider in the catalog', () => {

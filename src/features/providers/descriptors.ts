@@ -309,6 +309,16 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
 };
 
+export const THIRD_PARTY_CHANNEL_BRANDS: ReadonlySet<ProviderBrand> = new Set([
+  'apikeyFun',
+  'claudeApi',
+  'code0',
+  'fennoAI',
+  'qiniuCloud',
+  'lmuAI',
+  'infistar',
+]);
+
 export const PROVIDER_BRAND_ORDER: ProviderBrand[] = [
   'kimi',
   'gemini',
@@ -318,11 +328,4 @@ export const PROVIDER_BRAND_ORDER: ProviderBrand[] = [
   'claude',
   'vertex',
   'openaiCompatibility',
-  'apikeyFun',
-  'claudeApi',
-  'code0',
-  'fennoAI',
-  'qiniuCloud',
-  'lmuAI',
-  'infistar',
 ];
