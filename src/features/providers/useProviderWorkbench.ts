@@ -37,11 +37,13 @@ import { buildFennoAIRaw } from './fennoAI';
 import { buildQiniuCloudRaw } from './qiniuCloud';
 import { buildLmuAIRaw } from './lmuAI';
 import { buildInfistarRaw } from './infistar';
-import { buildKimiRaw, isKimiClaudeProvider, isKimiOpenAIProvider } from './kimi';
 import {
-  getSponsorProviderDefinition,
-  type SponsorProtocolUrls,
-} from './sponsorDefinitions';
+  buildKimiRaw,
+  isKimiClaudeProvider,
+  isKimiCodexProvider,
+  isKimiOpenAIProvider,
+} from './kimi';
+import { getSponsorProviderDefinition, type SponsorProtocolUrls } from './sponsorDefinitions';
 import { runSponsorMutationWithRecovery } from './sponsorMutationRecovery';
 
 export interface UseProviderWorkbenchResult {
@@ -171,7 +173,7 @@ const buildProviderKeyConfig = (
     };
   }
   if (brand === 'claude') {
-    next.experimentalCchSigning = input.experimentalCchSigning === true;
+    next.fingerprintProfile = input.fingerprintProfile?.trim() || undefined;
   }
   return next;
 };
@@ -428,9 +430,12 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           );
           break;
         case 'codex':
-          resources = (config.codexApiKeys ?? []).map((item, index) =>
-            codexToResource(item, index)
-          );
+          resources = (config.codexApiKeys ?? []).reduce<ProviderResource[]>((out, item, index) => {
+            if (!isKimiCodexProvider(item)) {
+              out.push(codexToResource(item, index));
+            }
+            return out;
+          }, []);
           break;
         case 'xai':
           resources = (config.xaiApiKeys ?? []).map((item, index) => xaiToResource(item, index));
@@ -438,9 +443,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         case 'claude':
           resources = (config.claudeApiKeys ?? []).reduce<ProviderResource[]>(
             (out, item, index) => {
-              if (
-                !isKimiClaudeProvider(item)
-              ) {
+              if (!isKimiClaudeProvider(item)) {
                 out.push(claudeToResource(item, index));
               }
               return out;
@@ -454,9 +457,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         case 'openaiCompatibility':
           resources = (config.openaiCompatibility ?? []).reduce<ProviderResource[]>(
             (out, item, index) => {
-              if (
-                !isKimiOpenAIProvider(item)
-              ) {
+              if (!isKimiOpenAIProvider(item)) {
                 out.push(openaiToResource(item, index));
               }
               return out;

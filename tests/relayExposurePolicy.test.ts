@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import {
   CLAUDE_API_AFFILIATE_URL,
   CLAUDE_API_BASE_URL,
@@ -15,6 +17,8 @@ import {
   THIRD_PARTY_CHANNEL_BRANDS,
 } from '../src/features/providers/descriptors';
 import { SPONSOR_DEFINITIONS } from '../src/features/providers/sponsorDefinitions';
+import { ProviderCategoryList } from '../src/features/providers/components/ProviderCategoryList';
+import { ProviderResourcePanel } from '../src/features/providers/components/ProviderResourcePanel';
 
 const FIRST_PARTY_MODEL_VENDOR_BRANDS = new Set(['kimi']);
 
@@ -47,6 +51,43 @@ describe('third-party relay exposure policy', () => {
 
   test('keeps configuration sponsor links removed', () => {
     expect(SPONSORS).toEqual([]);
+  });
+
+  test('renders only the allowed provider categories without relay names or logos', () => {
+    const markup = renderToStaticMarkup(
+      createElement(ProviderCategoryList, {
+        groups: PROVIDER_BRAND_ORDER.map((id) => ({ id, resources: [] })),
+        activeBrand: 'kimi',
+        onSelect: () => {},
+      })
+    );
+
+    expect(markup.match(/<button\b/g)?.length).toBe(PROVIDER_BRAND_ORDER.length);
+    expect(markup).toContain('providersPage.providerNames.kimi');
+    expect(markup).toContain('providersPage.providerNames.codex');
+    for (const brand of THIRD_PARTY_CHANNEL_BRANDS) {
+      expect(markup.toLowerCase()).not.toContain(brand.toLowerCase());
+    }
+  });
+
+  test('renders the Kimi provider panel without registration links or promotional text', () => {
+    const markup = renderToStaticMarkup(
+      createElement(ProviderResourcePanel, {
+        group: { id: 'kimi', resources: [] },
+        filter: '',
+        filteredResources: [],
+        selectedId: null,
+        onFilterChange: () => {},
+        onView: () => {},
+        onEdit: () => {},
+        onDelete: () => {},
+        onCreate: () => {},
+      })
+    );
+
+    expect(markup).toContain('providersPage.providerNames.kimi');
+    expect(markup).toContain('providersPage.actions.new');
+    expect(markup).not.toMatch(/<a\b|kimiPromo|providersPage\.sponsor/);
   });
 
   test('requires review before any non-first-party sponsor can ship URLs', () => {
