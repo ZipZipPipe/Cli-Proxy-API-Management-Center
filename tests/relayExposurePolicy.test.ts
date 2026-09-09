@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { I18nextProvider } from 'react-i18next';
+import { createInstance } from 'i18next';
+import en from '../src/i18n/locales/en.json';
 import {
   CLAUDE_API_AFFILIATE_URL,
   CLAUDE_API_BASE_URL,
@@ -21,6 +24,10 @@ import { ProviderCategoryList } from '../src/features/providers/components/Provi
 import { ProviderResourcePanel } from '../src/features/providers/components/ProviderResourcePanel';
 
 const FIRST_PARTY_MODEL_VENDOR_BRANDS = new Set(['kimi']);
+const i18n = createInstance();
+await i18n.init({ lng: 'en', resources: { en: { translation: en } } });
+const render = (element: ReturnType<typeof createElement>) =>
+  renderToStaticMarkup(createElement(I18nextProvider, { i18n }, element));
 
 const definitionUrls = (
   definition: (typeof SPONSOR_DEFINITIONS)[keyof typeof SPONSOR_DEFINITIONS]
@@ -54,7 +61,7 @@ describe('third-party relay exposure policy', () => {
   });
 
   test('renders only the allowed provider categories without relay names or logos', () => {
-    const markup = renderToStaticMarkup(
+    const markup = render(
       createElement(ProviderCategoryList, {
         groups: PROVIDER_BRAND_ORDER.map((id) => ({ id, resources: [] })),
         activeBrand: 'kimi',
@@ -63,15 +70,15 @@ describe('third-party relay exposure policy', () => {
     );
 
     expect(markup.match(/<button\b/g)?.length).toBe(PROVIDER_BRAND_ORDER.length);
-    expect(markup).toContain('providersPage.providerNames.kimi');
-    expect(markup).toContain('providersPage.providerNames.codex');
+    expect(markup).toContain('>Kimi<');
+    expect(markup).toContain('>Codex<');
     for (const brand of THIRD_PARTY_CHANNEL_BRANDS) {
       expect(markup.toLowerCase()).not.toContain(brand.toLowerCase());
     }
   });
 
   test('renders the Kimi provider panel without registration links or promotional text', () => {
-    const markup = renderToStaticMarkup(
+    const markup = render(
       createElement(ProviderResourcePanel, {
         group: { id: 'kimi', resources: [] },
         filter: '',
@@ -85,9 +92,10 @@ describe('third-party relay exposure policy', () => {
       })
     );
 
-    expect(markup).toContain('providersPage.providerNames.kimi');
-    expect(markup).toContain('providersPage.actions.new');
+    expect(markup).toContain('>Kimi<');
+    expect(markup).toContain('>New<');
     expect(markup).not.toMatch(/<a\b|kimiPromo|providersPage\.sponsor/);
+    expect(markup).not.toContain(en.providersPage.sponsor.kimiPromo);
   });
 
   test('requires review before any non-first-party sponsor can ship URLs', () => {
