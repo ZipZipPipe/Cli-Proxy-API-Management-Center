@@ -18,6 +18,7 @@ import { ProviderResourcePanel } from './components/ProviderResourcePanel';
 import type { ProviderPanelControls } from './components/ProviderResourcePanel';
 import { ProviderSheet, type ProviderSheetHandle } from './sheets/ProviderSheet';
 import { isMultiProtocolSponsorBrand } from './sponsorDefinitions';
+import { THIRD_PARTY_CHANNEL_BRANDS } from './descriptors';
 import { isSponsorPartialMutationError } from './sponsorMutationRecovery';
 import { useProviderWorkbench } from './useProviderWorkbench';
 import {
@@ -37,6 +38,10 @@ interface SheetState {
   brand: ProviderBrand;
   mode: SheetMode;
   resource: ProviderResource | null;
+}
+
+interface ProvidersWorkbenchPageProps {
+  fixedBrand?: ProviderBrand;
 }
 
 const formatDateTime = (iso: string, locale?: string) => {
@@ -91,7 +96,7 @@ const getResourceRecentSuccess = (
   ).success;
 };
 
-export function ProvidersWorkbenchPage() {
+export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPageProps = {}) {
   const { t, i18n } = useTranslation();
   const connectionStatus = useAuthStore((s) => s.connectionStatus);
   const { showNotification, showConfirmation } = useNotificationStore();
@@ -147,12 +152,19 @@ export function ProvidersWorkbenchPage() {
   );
 
   const allGroups = useMemo(() => workbench.snapshot?.groups ?? [], [workbench.snapshot]);
-  const groups = allGroups;
-  const firstVisibleBrand = groups[0]?.id ?? 'gemini';
+  const groups = useMemo(
+    () =>
+      fixedBrand
+        ? allGroups.filter((group) => group.id === fixedBrand)
+        : allGroups.filter((group) => !THIRD_PARTY_CHANNEL_BRANDS.has(group.id)),
+    [allGroups, fixedBrand]
+  );
+  const firstVisibleBrand = groups[0]?.id ?? fixedBrand ?? 'gemini';
   const activeBrand =
-    groups.some((group) => group.id === uiState.activeBrand)
+    fixedBrand ??
+    (groups.some((group) => group.id === uiState.activeBrand)
       ? uiState.activeBrand
-      : firstVisibleBrand;
+      : firstVisibleBrand);
   const activeFilterState = getProviderFilterState(uiState, activeBrand);
   const filter = activeFilterState.filter;
   const providerSortBy = activeFilterState.sortBy;
@@ -260,6 +272,7 @@ export function ProvidersWorkbenchPage() {
   const updatedAtLabel = workbench.snapshot
     ? formatDateTime(workbench.snapshot.fetchedAt, i18n.language)
     : t('providersPage.modelCatalog.notLoaded');
+  const headerTitle = t('providersPage.header.title');
   const errorBanner = workbench.errorMessage ? (
     <div className="error-box">{workbench.errorMessage}</div>
   ) : null;
@@ -364,6 +377,7 @@ export function ProvidersWorkbenchPage() {
     return (
       <div className={styles.page}>
         <ProviderHeaderCard
+          title={headerTitle}
           totalActive={0}
           totalResources={0}
           providerFamilies={0}
@@ -372,8 +386,8 @@ export function ProvidersWorkbenchPage() {
           onRefresh={() => void handleRefresh()}
           onNew={() => {}}
           isNewDisabled
-          showNewAction
-          showSummary
+          showNewAction={!fixedBrand}
+          showSummary={fixedBrand !== 'apikeyFun'}
         />
         {errorBanner}
       </div>
@@ -383,14 +397,15 @@ export function ProvidersWorkbenchPage() {
   return (
     <div className={styles.page}>
       <ProviderHeaderCard
+        title={headerTitle}
         totalActive={totalActive}
         totalResources={totalResources}
         providerFamilies={providerFamilies}
         updatedAtLabel={updatedAtLabel}
         isFetching={workbench.isFetching}
         isNewDisabled={disableMutations}
-        showNewAction
-        showSummary
+        showNewAction={!fixedBrand}
+        showSummary={fixedBrand !== 'apikeyFun'}
         newLabel={t('providersPage.actions.new')}
         onRefresh={() => void handleRefresh()}
         onNew={openCreate}
@@ -398,25 +413,27 @@ export function ProvidersWorkbenchPage() {
 
       {errorBanner}
 
-      <div className={styles.layout}>
-        <ProviderCategoryList
-          groups={groups}
-          activeBrand={activeGroup.id}
-          onSelect={(brand) => {
-            const isSwitching = sheetState.open && sheetState.brand !== brand;
-            const proceed =
-              isSwitching && sheetRef.current
-                ? sheetRef.current.confirmDiscardIfDirty()
-                : Promise.resolve(true);
-            void proceed.then((ok) => {
-              if (!ok) return;
-              setActiveBrand(brand);
-              if (isSwitching) {
-                closeSheet();
-              }
-            });
-          }}
-        />
+      <div className={`${styles.layout} ${fixedBrand ? styles.layoutSingle : ''}`.trim()}>
+        {!fixedBrand ? (
+          <ProviderCategoryList
+            groups={groups}
+            activeBrand={activeGroup.id}
+            onSelect={(brand) => {
+              const isSwitching = sheetState.open && sheetState.brand !== brand;
+              const proceed =
+                isSwitching && sheetRef.current
+                  ? sheetRef.current.confirmDiscardIfDirty()
+                  : Promise.resolve(true);
+              void proceed.then((ok) => {
+                if (!ok) return;
+                setActiveBrand(brand);
+                if (isSwitching) {
+                  closeSheet();
+                }
+              });
+            }}
+          />
+        ) : null}
         <ProviderResourcePanel
           group={activeGroup}
           filter={filter}
@@ -434,19 +451,21 @@ export function ProvidersWorkbenchPage() {
         />
       </div>
 
-      <ProviderSheet
-        ref={sheetRef}
-        state={sheetState}
-        onClose={closeSheet}
-        onSwitchToEdit={() => {
-          setSheetState((s) => (s.resource ? { ...s, mode: 'edit' } : s));
-        }}
-        workbench={workbench}
-        onCreated={handleCreated}
-        onUpdated={handleUpdated}
-        mutationDisabled={disableMutations}
-        usageByProvider={usageByProvider}
-      />
+      {!fixedBrand ? (
+        <ProviderSheet
+          ref={sheetRef}
+          state={sheetState}
+          onClose={closeSheet}
+          onSwitchToEdit={() => {
+            setSheetState((s) => (s.resource ? { ...s, mode: 'edit' } : s));
+          }}
+          workbench={workbench}
+          onCreated={handleCreated}
+          onUpdated={handleUpdated}
+          mutationDisabled={disableMutations}
+          usageByProvider={usageByProvider}
+        />
+      ) : null}
     </div>
   );
 }

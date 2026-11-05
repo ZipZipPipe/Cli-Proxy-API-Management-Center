@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { PROVIDER_LOGOS } from '../brandLogos';
+import { THIRD_PARTY_CHANNEL_BRANDS } from '../descriptors';
 import type { ProviderBrand, ProviderGroup } from '../types';
 import styles from './ProviderCategoryList.module.scss';
 
@@ -11,6 +12,8 @@ interface ProviderCategoryListProps {
 
 export function ProviderCategoryList({ groups, activeBrand, onSelect }: ProviderCategoryListProps) {
   const { t } = useTranslation();
+
+  const providerGroups = groups.filter((group) => !THIRD_PARTY_CHANNEL_BRANDS.has(group.id));
 
   const renderGroups = (items: ProviderGroup[]) => (
     <div className={styles.list}>
@@ -98,7 +101,7 @@ export function ProviderCategoryList({ groups, activeBrand, onSelect }: Provider
     <div className={styles.stack}>
       <aside className={styles.aside}>
         <p className={styles.eyebrow}>{t('providersPage.categories.title')}</p>
-        {renderGroups(groups)}
+        {renderGroups(providerGroups)}
       </aside>
     </div>
   );

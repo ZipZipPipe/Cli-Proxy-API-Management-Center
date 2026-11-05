@@ -5,11 +5,6 @@ import { I18nextProvider } from 'react-i18next';
 import { createInstance } from 'i18next';
 import en from '../src/i18n/locales/en.json';
 import {
-  CLAUDE_API_AFFILIATE_URL,
-  CLAUDE_API_BASE_URL,
-  CLAUDE_API_LEGACY_BASE_URL,
-} from '../src/features/providers/claudeApi';
-import {
   KIMI_CHINESE_AFFILIATE_URL,
   KIMI_INTERNATIONAL_AFFILIATE_URL,
 } from '../src/features/providers/kimi';
@@ -43,7 +38,6 @@ const definitionUrls = (
 describe('third-party relay exposure policy', () => {
   test('removes every third-party channel from the visible provider catalog', () => {
     const expectedThirdPartyBrands = [
-      'claudeApi',
       ...Object.values(SPONSOR_DEFINITIONS)
         .filter((definition) => !FIRST_PARTY_MODEL_VENDOR_BRANDS.has(definition.brand))
         .map((definition) => definition.brand),
@@ -63,7 +57,10 @@ describe('third-party relay exposure policy', () => {
   test('renders only the allowed provider categories without relay names or logos', () => {
     const markup = render(
       createElement(ProviderCategoryList, {
-        groups: PROVIDER_BRAND_ORDER.map((id) => ({ id, resources: [] })),
+        groups: [...PROVIDER_BRAND_ORDER, ...THIRD_PARTY_CHANNEL_BRANDS].map((id) => ({
+          id,
+          resources: [],
+        })),
         activeBrand: 'kimi',
         onSelect: () => {},
       })
@@ -110,13 +107,7 @@ describe('third-party relay exposure policy', () => {
   });
 
   test('keeps standalone relay and registration URLs removed', () => {
-    expect([
-      CLAUDE_API_BASE_URL,
-      CLAUDE_API_LEGACY_BASE_URL,
-      CLAUDE_API_AFFILIATE_URL,
-      KIMI_CHINESE_AFFILIATE_URL,
-      KIMI_INTERNATIONAL_AFFILIATE_URL,
-    ]).toEqual(['', '', '', '', '']);
+    expect([KIMI_CHINESE_AFFILIATE_URL, KIMI_INTERNATIONAL_AFFILIATE_URL]).toEqual(['', '']);
   });
 
   test('keeps the promotional quick-start route removed', async () => {
@@ -125,11 +116,14 @@ describe('third-party relay exposure policy', () => {
         'src/router/MainRoutes.tsx',
         'src/components/layout/MainLayout.tsx',
         'src/features/dashboard/DashboardPage.tsx',
+        'src/features/providers/ProvidersWorkbenchPage.tsx',
       ].map((path) => Bun.file(path).text())
     );
 
     for (const source of sources) {
       expect(source).not.toContain('/quick-start');
+      expect(source).not.toContain('SponsorCampaignCard');
+      expect(source).not.toContain('SponsorQuickStartPanel');
     }
   });
 });
