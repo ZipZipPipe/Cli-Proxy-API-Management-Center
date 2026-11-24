@@ -15,8 +15,8 @@ import {
   THIRD_PARTY_CHANNEL_BRANDS,
 } from '../src/features/providers/descriptors';
 import { SPONSOR_DEFINITIONS } from '../src/features/providers/sponsorDefinitions';
-import { ProviderCategoryList } from '../src/features/providers/components/ProviderCategoryList';
-import { ProviderResourcePanel } from '../src/features/providers/components/ProviderResourcePanel';
+import { BrandTabs } from '../src/features/providers/components/BrandTabs';
+import { ProviderPicker } from '../src/features/providers/components/ProviderPicker';
 
 const FIRST_PARTY_MODEL_VENDOR_BRANDS = new Set(['kimi']);
 const i18n = createInstance();
@@ -54,45 +54,32 @@ describe('third-party relay exposure policy', () => {
     expect(SPONSORS).toEqual([]);
   });
 
-  test('renders only the allowed provider categories without relay names or logos', () => {
-    const markup = render(
-      createElement(ProviderCategoryList, {
-        groups: [...PROVIDER_BRAND_ORDER, ...THIRD_PARTY_CHANNEL_BRANDS].map((id) => ({
-          id,
-          resources: [],
-        })),
+  test('renders only approved providers in both tabs and add-provider catalog', () => {
+    const groups = [...PROVIDER_BRAND_ORDER, ...THIRD_PARTY_CHANNEL_BRANDS].map((id) => ({
+      id,
+      resources: [],
+    }));
+    const tabs = render(
+      createElement(BrandTabs, {
+        groups,
         activeBrand: 'kimi',
         onSelect: () => {},
+        tabId: (brand) => `tab-${brand}`,
+        panelId: 'panel',
       })
     );
+    const picker = render(createElement(ProviderPicker, { groups, onPick: () => {} }));
 
-    expect(markup.match(/<button\b/g)?.length).toBe(PROVIDER_BRAND_ORDER.length);
-    expect(markup).toContain('>Kimi<');
-    expect(markup).toContain('>Codex<');
-    for (const brand of THIRD_PARTY_CHANNEL_BRANDS) {
-      expect(markup.toLowerCase()).not.toContain(brand.toLowerCase());
+    for (const markup of [tabs, picker]) {
+      expect(markup.match(/<button\b/g)?.length).toBe(PROVIDER_BRAND_ORDER.length);
+      expect(markup).toContain('>Kimi<');
+      expect(markup).toContain('>Codex<');
+      expect(markup).not.toMatch(/<a\b/);
+      for (const brand of THIRD_PARTY_CHANNEL_BRANDS) {
+        expect(markup.toLowerCase()).not.toContain(brand.toLowerCase());
+        expect(markup).not.toContain(en.providersPage.providerNames[brand]);
+      }
     }
-  });
-
-  test('renders the Kimi provider panel without registration links or promotional text', () => {
-    const markup = render(
-      createElement(ProviderResourcePanel, {
-        group: { id: 'kimi', resources: [] },
-        filter: '',
-        filteredResources: [],
-        selectedId: null,
-        onFilterChange: () => {},
-        onView: () => {},
-        onEdit: () => {},
-        onDelete: () => {},
-        onCreate: () => {},
-      })
-    );
-
-    expect(markup).toContain('>Kimi<');
-    expect(markup).toContain('>New<');
-    expect(markup).not.toMatch(/<a\b|kimiPromo|providersPage\.sponsor/);
-    expect(markup).not.toContain(en.providersPage.sponsor.kimiPromo);
   });
 
   test('requires review before any non-first-party sponsor can ship URLs', () => {

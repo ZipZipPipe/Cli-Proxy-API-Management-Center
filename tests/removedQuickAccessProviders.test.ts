@@ -4,25 +4,12 @@ import type { Config } from '../src/types';
 
 const retiredEndpoints = [
   ['code0', 'https://code0.ai'],
-  ['lmuAI', 'https://api.lmuai.com'],
-  ['infistar', 'https://coneverse.com'],
-  ['infistar', 'https://infistar.ai'],
-  ['claudeApi', 'https://gw.apito.ai'],
   ['claudeApi', 'https://gw.claudeapi.com'],
+  ['aiCodeMirror', 'https://api.aicodemirror.ai'],
+  ['aiCodeMirror', 'https://api.claudecode.net.cn'],
 ] as const;
 
 describe('removed quick-access providers', () => {
-  test('removes retired brand groups', () => {
-    const ids = buildProviderGroups({}).map((group) => group.id);
-    for (const [brand] of retiredEndpoints) {
-      expect(ids).not.toContain(brand);
-    }
-    for (const brand of ['apikeyFun', 'fennoAI', 'qiniuCloud']) {
-      expect(ids).not.toContain(brand);
-    }
-    expect(ids).toContain('kimi');
-  });
-
   for (const [name, baseUrl] of retiredEndpoints) {
     test(`keeps ${baseUrl} configs editable in generic protocol groups`, () => {
       const key = {

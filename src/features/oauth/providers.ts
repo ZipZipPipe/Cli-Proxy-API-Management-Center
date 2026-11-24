@@ -2,6 +2,7 @@ import type { BuiltInOAuthProvider } from '@/services/api';
 import { getPluginTitle, resolvePluginAssetURL } from '@/features/plugins/pluginResources';
 import type { PluginListEntry } from '@/types';
 import iconMeta from '@/assets/icons/meta.svg';
+import iconCopilot from '@/assets/icons/copilot.svg';
 import iconCodex from '@/assets/icons/codex.svg';
 import iconClaude from '@/assets/icons/claude.svg';
 import iconAntigravity from '@/assets/icons/antigravity.svg';
@@ -30,6 +31,11 @@ export interface BuiltInOAuthProviderCard {
   /** 区分同品牌的不同站点，磁贴副行展示。 */
   domain?: string;
   /**
+   * 登录时才需要知道的注意事项（账号类型、站点不互通、时限），以 InfoTip 挂在
+   * 「打开授权页」步骤标题后。只说「通过 OAuth 登录并保存认证文件」的提供商不设。
+   */
+  signInNoteKey?: string;
+  /**
    * 赞助商：同品牌的各站点合并进画廊首行的一张品牌卡，每站一个登录入口 + 开放平台注册链接
    * （目前是 Kimi 国内站 / 国际站）。`siteKey` 是卡内站点短名（品牌名由卡片标题承载）。
    */
@@ -50,7 +56,7 @@ export interface PluginOAuthProviderCard {
 
 export type OAuthProviderCard = BuiltInOAuthProviderCard | PluginOAuthProviderCard;
 
-/** 展示顺序即数组顺序：赞助商（Kimi 两站）置首，其余沿用原有次序。 */
+/** 展示顺序即数组顺序，Kimi 两站置首。 */
 export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
   {
     kind: 'builtin',
@@ -60,6 +66,7 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     icon: { light: iconKimiTileBlack, dark: iconKimiTileWhite },
     flow: 'device',
     domain: 'kimi.com',
+    signInNoteKey: 'auth_login.kimi_oauth_hint',
   },
   {
     kind: 'builtin',
@@ -69,6 +76,15 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     icon: { light: iconKimiTileBlack, dark: iconKimiTileWhite },
     flow: 'device',
     domain: 'kimi.ai',
+    signInNoteKey: 'auth_login.kimi_ai_oauth_hint',
+  },
+  {
+    kind: 'builtin',
+    id: 'copilot',
+    label: 'GitHub Copilot',
+    titleKey: 'auth_login.copilot_oauth_title',
+    icon: iconCopilot,
+    flow: 'device',
   },
   {
     kind: 'builtin',
@@ -101,6 +117,7 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     titleKey: 'auth_login.antigravity_oauth_title',
     icon: iconAntigravity,
     flow: 'browser',
+    signInNoteKey: 'auth_login.antigravity_oauth_hint',
   },
   {
     kind: 'builtin',
@@ -117,6 +134,7 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     titleKey: 'auth_login.devin_oauth_title',
     icon: { light: iconDevin, dark: iconDevinDark },
     flow: 'browser',
+    signInNoteKey: 'auth_login.devin_oauth_hint',
   },
 ];
 
@@ -142,29 +160,36 @@ export const isSponsor = (
 export const resolveThemedIcon = (icon: ThemedIcon, theme: 'light' | 'dark'): string =>
   typeof icon === 'string' ? icon : icon[theme];
 
+/**
+ * 一个插件可能声明多个登录入口（各自带标题与图标），每个入口一张卡；
+ * v8.0.49 之前只有单个 `oauth_provider`，那时仍然只出一张卡。
+ */
 export const buildPluginOAuthProviderCards = (
   plugins: PluginListEntry[],
   apiBase: string
 ): PluginOAuthProviderCard[] => {
   const seenProviders = new Set(BUILTIN_PROVIDER_IDS);
   return plugins.flatMap((plugin) => {
-    const provider = plugin.oauthProvider;
-    if (
-      !plugin.supportsOAuth ||
-      !plugin.effectiveEnabled ||
-      !provider ||
-      seenProviders.has(provider)
-    ) {
-      return [];
-    }
-    seenProviders.add(provider);
-    return [
-      {
-        kind: 'plugin' as const,
-        id: provider,
-        title: getPluginTitle(plugin),
-        icon: resolvePluginAssetURL(plugin.logo || plugin.metadata?.logo || '', apiBase),
-      },
-    ];
+    if (!plugin.supportsOAuth || !plugin.effectiveEnabled) return [];
+    const declared = plugin.oauthProviders?.length
+      ? plugin.oauthProviders
+      : plugin.oauthProvider
+        ? [plugin.oauthProvider]
+        : [];
+    const pluginTitle = getPluginTitle(plugin);
+    const pluginLogo = plugin.logo || plugin.metadata?.logo || '';
+    return declared.flatMap((provider) => {
+      if (seenProviders.has(provider)) return [];
+      seenProviders.add(provider);
+      const entry = plugin.oauthProviderEntries?.find((item) => item.identifier === provider);
+      return [
+        {
+          kind: 'plugin' as const,
+          id: provider,
+          title: entry?.name?.trim() || pluginTitle,
+          icon: resolvePluginAssetURL(entry?.logo?.trim() || pluginLogo, apiBase),
+        },
+      ];
+    });
   });
 };
