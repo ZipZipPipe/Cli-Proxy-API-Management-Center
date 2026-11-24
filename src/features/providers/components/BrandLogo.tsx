@@ -16,6 +16,8 @@ interface BrandLogoProps {
  */
 export function BrandLogo({ brand, size = 24, className }: BrandLogoProps) {
   const logo = PROVIDER_LOGOS[brand];
+  if (!logo) return null;
+
   const tileClass = [
     styles.tile,
     logo.transparent ? styles.tileTransparent : '',
